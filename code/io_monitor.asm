@@ -24,7 +24,8 @@ chrout=$f1ca ;$ffd2
         jmp display_log
 
 init_hooks
-        jsr bank_norm
+;       jsr bank_norm
+        ; keep default
         jsr disp_copyright_usage
         jsr reset_counts
 
@@ -43,16 +44,16 @@ init_hooks
         ; copy BASIC $A000-$BFFF to RAM
         ; because there is no banking mode where BASIC is ROM, KERNEL is RAM
         ; stuck copying both to RAM
-        lda #$A0
-        sta $FC
--       lda ($FB), y
-        sta ($FB), Y
-        iny
-        bne -
-        inc $FC
-        ldx $FC
-        cpx #$C0 ; stop at $C000
-        bne -
+;       lda #$A0
+;       sta $FC
+; -     lda ($FB), y
+;       sta ($FB), Y
+;       iny
+;       bne -
+;       inc $FC
+;       ldx $FC
+;       cpx #$C0 ; stop at $C000
+;       bne -
 
         ; change KERNEL JUMP TABLE in RAM so we get control for those entries
         jsr hook_entries
@@ -61,16 +62,28 @@ init_hooks
         jsr bank_select
 
         ; copy 55/56 to log_ptr, and compute space available (up to $A000) in log_rem
-        lda 55 ; low byte end of BASIC RAM (variables) area
+
+;       lda 55 ; low byte end of BASIC RAM (variables) area
+        ; used by parameter stack 
+        lda $125f ; HERE lsb
+        
         sta log_ptr
         sec
         lda #$00
-        sbc 55
+
+;       sbc 55 ; used by parameter stack
+        sbc $125f ; HERE lsb
+        
         sta log_rem
-        lda 56 ; high byte end of BASIC RAM (variables) area
+        
+;       lda 56 ; high byte end of BASIC RAM (variables) area
+        ; used by parameter stack
+        lda $1261 ; HERE msb
+        
         sta log_ptr+1
         lda #$A0
-        sbc 56
+;       sbc 56
+        lda $1261 ; HERE msb
         bcs + ; greater than or equal to, okay
         lda #0 ; less than, zero out log_rem
         sta log_rem
