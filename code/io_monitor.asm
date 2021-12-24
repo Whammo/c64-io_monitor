@@ -65,25 +65,24 @@ init_hooks
 
 ;       lda 55 ; low byte end of BASIC RAM (variables) area
         ; used by parameter stack 
-        lda $125f ; HERE lsb
+        lda #$00 ; $a000
         
         sta log_ptr
         sec
         lda #$00
 
 ;       sbc 55 ; used by parameter stack
-        sbc $125f ; HERE lsb
+        sbc #$00 ; $a000
         
         sta log_rem
         
 ;       lda 56 ; high byte end of BASIC RAM (variables) area
         ; used by parameter stack
-        lda $1261 ; HERE msb
+        lda #$A0 ; $a000
         
         sta log_ptr+1
-        lda #$A0
-;       sbc 56
-        lda $1261 ; HERE msb
+        lda #$BF ; top of free ram $bfff
+        sbc #$A0
         bcs + ; greater than or equal to, okay
         lda #0 ; less than, zero out log_rem
         sta log_rem
@@ -200,9 +199,9 @@ display_counts
         rts
 
 display_log
-        lda 55
+        lda #0 
         sta $fb
-        lda 56
+        lda #a0
         sta $fc
         ldy #0
 -       lda $fc
